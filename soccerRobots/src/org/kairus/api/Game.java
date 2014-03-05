@@ -59,23 +59,24 @@ public class Game extends BasicGame implements constants, ContactListener{
 		PolygonShape polygon = new PolygonShape();
 		polygon.setAsBox(width/100f/2, width/100f/2);
 		//polygon.set(vertices, 3);
-		FixtureDef triangleShapeDef = new FixtureDef();
-		triangleShapeDef.shape = polygon;
-		triangleShapeDef.density = 1f;		
+		FixtureDef robotShapeDef = new FixtureDef();
+		robotShapeDef.shape = polygon;
+		robotShapeDef.density = 1f;		
 		for (int t = 0; t < 2; t++){
 			Robot[] teamsRobots = new Robot[3];
 			for (int i = 0; i < 3; i++){
-				BodyDef triangleBodyDef = new BodyDef();
-				triangleBodyDef.type = BodyType.DYNAMIC;
-				triangleBodyDef.position.set((float)Math.random()*6f, (float)Math.random()*6f);
-				Body paddle = w.createBody(triangleBodyDef);
-				paddle.createFixture(triangleShapeDef);
-				paddle.m_angularDamping = 20;
-				paddle.m_linearDamping = 1f;
+				BodyDef robotBodyDef = new BodyDef();
+				robotBodyDef.type = BodyType.DYNAMIC;
+				robotBodyDef.position.set((float)Math.random()*6f, (float)Math.random()*6f);
+				Body paddle = w.createBody(robotBodyDef);
+				paddle.createFixture(robotShapeDef);
+				paddle.m_angularDamping = ROBOT_SPIN_DAMPING;
+				paddle.m_linearDamping = ROBOT_LINEAR_DAMPING;
 				bodies.add(paddle);
 				teamsRobots[i] = new Robot(paddle);
 			}
-			teams[t].addRobots(teamsRobots);
+			teams[t].robot = teamsRobots;
+			teams[1-t].enemyRobot=teamsRobots;
 		}
 
 
