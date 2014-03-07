@@ -20,18 +20,21 @@ public class KairusTeam extends Team {
 	ArrayList<RobotModule> goalieModules = new ArrayList<RobotModule>();
 	ArrayList<RobotModule> defenderModules = new ArrayList<RobotModule>();
 	ArrayList<RobotModule> attackerModules = new ArrayList<RobotModule>();
-	int framesBetweenCalculation = 5;
+	int framesBetweenCalculation = 1;
 	int currentFrame = 0;
 	
 	private void initModules(){
 		//defense
-		goalieModules.add(new defenseModule(0, this));
-		defenderModules.add(new defenseModule(1, this));
-		attackerModules.add(new defenseModule(2, this));
+		goalieModules.add(new goalieModule(0, this));
 		//spiral
 		//goalieModules.add(new spiralModule(0, this));
 		defenderModules.add(new spiralModule(1, this));
 		attackerModules.add(new spiralModule(2, this));
+
+		//fire
+		goalieModules.add(new fireAtGoalModule(0, this));
+		defenderModules.add(new fireAtGoalModule(1, this));
+		attackerModules.add(new fireAtGoalModule(2, this));
 	}
 	
 	public void gameFrame() {

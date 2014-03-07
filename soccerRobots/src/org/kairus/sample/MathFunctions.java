@@ -9,6 +9,10 @@ public class MathFunctions {
 		return Math.sqrt((vec1.x-vec2.x)*(vec1.x-vec2.x)+(vec1.y-vec2.y)*(vec1.y-vec2.y));
 	}
 	
+	public static double angleTo(Vec2 vec1, Vec2 vec2){
+		return Math.atan2(vec2.y-vec1.y, vec2.x-vec1.x);
+	}
+	
 	public static double angleDifference(double targetAngle, double currentAngle){
 		double angle = (targetAngle-currentAngle) %(2*Math.PI);
 		return angle += (angle>Math.PI) ? -2*Math.PI : (angle<-Math.PI) ? 2*Math.PI : 0;

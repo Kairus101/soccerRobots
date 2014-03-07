@@ -13,7 +13,7 @@ public class spiralModule extends RobotModule {
 
 	@Override
 	int assessUtility(Team team) {
-		return 100;
+		return 50;
 	}
 
 	double tolerance = 10;

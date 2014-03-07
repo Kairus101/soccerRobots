@@ -15,6 +15,8 @@ abstract public class RobotModule implements Comparable<RobotModule>, constants 
 	abstract int assessUtility(Team team);
 	protected void setUtility(Team team){
 		utility = assessUtility(team);
+		if (utility>100) utility = 100;
+		if (utility<0)   utility = 0;
 	}
 	public int getUtility(){
 		return utility;
