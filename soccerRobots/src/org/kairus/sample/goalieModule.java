@@ -23,8 +23,8 @@ public class goalieModule extends RobotModule {
 			distance = MathFunctions.distance(enemyRobots[i].getPosition(), team.getBallPosition());
 			if (distance<lowestEnemyDistance)lowestEnemyDistance=distance;
 		}
-		if (lowestEnemyDistance+100 > lowestDistance){
-			System.out.println("goalie desire = "+((int) ((lowestEnemyDistance+100-lowestDistance)/5)));
+		if (lowestEnemyDistance+150 > lowestDistance){
+			//System.out.println("goalie desire = "+((int) ((lowestEnemyDistance+150-lowestDistance)/2)));
 			return (int) ((lowestEnemyDistance+100-lowestDistance)/5);
 		}else
 			return 0;
@@ -41,7 +41,7 @@ public class goalieModule extends RobotModule {
 		double idealY;
 		double velocity = Math.sqrt(vel.x*vel.x+vel.y*vel.y);
 		double idealRotation = 0;
-		System.out.println(robotNumber+": Defense!");
+		//System.out.println(robotNumber+": Defense!");
 		double angleToBall = Math.atan2(ballPos.y-pos.y, ballPos.x-pos.x);
 		idealX = team.getTeamNumber()==0?10+Math.cos(angleToBall)*50:590+Math.cos(angleToBall)*50;
 		idealY = 300+Math.sin(angleToBall)*50;

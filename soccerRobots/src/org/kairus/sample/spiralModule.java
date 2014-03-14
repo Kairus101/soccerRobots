@@ -44,7 +44,7 @@ public class spiralModule extends RobotModule {
 		double idealY = 300+Math.sin(frame+(robotNumber/3f)*2f*Math.PI + (team.getTeamNumber()==0?0f:Math.PI/3f))*200;
 		
 		g.setColor(Color.blue);
-		g.drawLine((float)pos.x, (float)pos.y, (float)idealX, (float)idealY);
+		//g.drawLine((float)pos.x, (float)pos.y, (float)idealX, (float)idealY);
 		
 	}
 }

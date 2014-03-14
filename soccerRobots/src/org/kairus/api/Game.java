@@ -208,6 +208,10 @@ public class Game extends BasicGame implements constants, ContactListener{
 		if (mouse2){
 			ball.applyForceToCenter(new Vec2(x-ballPos.x, y-ballPos.y).mul(0.0025f));
 		}
+		
+		//APPLY FORCE TOWARDS CENTER
+		ball.applyForceToCenter(new Vec2(300-ballPos.x, 300-ballPos.y).mul(0.00001f));
+		
 
 	}
 

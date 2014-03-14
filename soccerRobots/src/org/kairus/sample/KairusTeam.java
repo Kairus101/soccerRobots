@@ -20,7 +20,7 @@ public class KairusTeam extends Team {
 	ArrayList<RobotModule> goalieModules = new ArrayList<RobotModule>();
 	ArrayList<RobotModule> defenderModules = new ArrayList<RobotModule>();
 	ArrayList<RobotModule> attackerModules = new ArrayList<RobotModule>();
-	int framesBetweenCalculation = 1;
+	int framesBetweenCalculation = 0;
 	int currentFrame = 0;
 	
 	private void initModules(){
@@ -29,6 +29,7 @@ public class KairusTeam extends Team {
 		//spiral
 		//goalieModules.add(new spiralModule(0, this));
 		defenderModules.add(new spiralModule(1, this));
+		defenderModules.add(new getBehindBallModule(1, this));
 		attackerModules.add(new spiralModule(2, this));
 
 		//fire
@@ -39,7 +40,7 @@ public class KairusTeam extends Team {
 	
 	public void gameFrame() {
 		
-		if (++currentFrame==framesBetweenCalculation){
+		if (++currentFrame>=framesBetweenCalculation){
 			currentFrame=0;
 			
 			//update all utility values.

@@ -18,12 +18,11 @@ public class fireAtGoalModule extends RobotModule {
 		Vec2 pos = me.getPosition();
 		Vec2 ballPos = team.getBallPosition().mul(100);
 		double distanceToBall = MathFunctions.distance(pos, ballPos);
-		System.out.println("Robot: "+robotNumber+" distance: "+distanceToBall);
 		if (distanceToBall < 90){
 			double angleToBall = MathFunctions.angleTo(pos, ballPos);
 			double angleToGoal = MathFunctions.angleTo(pos, new Vec2(team.getTeamNumber()==0?600:0,300));
 			double angleDifference = Math.abs(MathFunctions.angleDifference(angleToBall, angleToGoal));
-			System.out.println("Robot: "+robotNumber+" utility: "+((int) ((Math.PI-angleDifference)*100)));
+			//System.out.println("Robot: "+robotNumber+" utility: "+((int) ((Math.PI-angleDifference)*100)));
 			return (int) ((1-angleDifference)*100);
 		}
 		return 0;
@@ -40,7 +39,7 @@ public class fireAtGoalModule extends RobotModule {
 		double idealY;
 		double velocity = Math.sqrt(vel.x*vel.x+vel.y*vel.y);
 		double idealRotation = 0;
-		System.out.println(robotNumber+": Fire!");
+		//System.out.println(robotNumber+": Fire!");
 		Vec2 goalpos = new Vec2(team.getTeamNumber()==0?600:0,300);
 		idealX = goalpos.x;//ballPos.x;
 		idealY = goalpos.y;//ballPos.y;
@@ -72,7 +71,7 @@ public class fireAtGoalModule extends RobotModule {
 		Vec2 pos = me.getPosition();
 		g.setColor(Color.green);
 		Vec2 goalpos = new Vec2(team.getTeamNumber()==0?600:0,300);
-		g.drawLine((float)pos.x, (float)pos.y, goalpos.x, goalpos.y);
-		g.drawOval((float)pos.x-90, (float)pos.y-90, 180, 180);
+		//g.drawLine((float)pos.x, (float)pos.y, goalpos.x, goalpos.y);
+		//g.drawOval((float)pos.x-90, (float)pos.y-90, 180, 180);
 	}
 }
