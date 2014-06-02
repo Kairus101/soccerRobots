@@ -3,12 +3,9 @@ package org.kairus.api;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Body;
 import org.newdawn.slick.Graphics;
-import org.newdawn.slick.Image;
 
 public class Robot implements constants{
-	//private float vdirection=0;
-	private double width = 50;
-	private double height = 30;
+	private float width = ROBOT_WIDTH*SCALE*1.2f;
 	
 	// robots input
 	private float inputSpeed = 0;
@@ -46,22 +43,22 @@ public class Robot implements constants{
 	}
 	
 	//Getters
+	public float GetSpinInput() {return inputSpin;}
+	public float GetSpeedInput() {return inputSpeed;}
 	public double getSpinSpeed() {return ROBOT_SPIN_SPEED;}
 	public double getSpeed() {return ROBOT_SPEED;}
-	public Vec2 getPosition() {return body.getWorldCenter().mul(100);}
-	public Vec2 getDisplayPosition() {return body.getPosition().mul(100);}
+	public Vec2 getPosition() {return body.getWorldCenter().mul(SCALE);}
+	public Vec2 getDisplayPosition() {return body.getPosition().mul(SCALE);}
 	public float getDirection() {return (float) (body.getAngle()%(2*Math.PI));}
-	public Vec2 getVelocity() {return body.getLinearVelocity().mul(100);}
+	public Vec2 getVelocity() {return body.getLinearVelocity().mul(SCALE);}
 	public float getAngularVelocity() {return body.getAngularVelocity();}
 	//public float getVdirection() {return vdirection;}
 
 	protected void render(Graphics g) {
-		Vec2 origin = getDisplayPosition();//.mul(100);
+		Vec2 origin = getDisplayPosition();
 		float direction = body.getAngle();
 		Game.robot.setRotation((float)(direction*180f/Math.PI));
-		Game.robot.draw((float) (origin.x-width/2), (float) (origin.y-width/2), g.getColor());
-		
-		//Game.robot.drawCentered(origin.x, origin.y);
-		
+		//Game.robot.draw((float) origin.x, (float) origin.y, width, width, g.getColor());
+		g.drawImage(Game.robot, origin.x-width/2, origin.y-width/2, g.getColor());
 	}
 }

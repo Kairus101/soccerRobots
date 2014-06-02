@@ -14,6 +14,8 @@ import org.jbox2d.dynamics.BodyType;
 import org.jbox2d.dynamics.FixtureDef;
 import org.jbox2d.dynamics.World;
 import org.jbox2d.dynamics.contacts.Contact;
+import org.kairus.sample.KairusTeam;
+import org.kairus.sample.MathFunctions;
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.BasicGame;
 import org.newdawn.slick.Color;
@@ -24,8 +26,8 @@ import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 
 public class Game extends BasicGame implements constants, ContactListener{
-	public static int screenW=600;
-	public static int screenH=600;
+	public static float screenW=FIELD_WIDTH*SCALE;
+	public static float screenH=FIELD_HEIGHT*SCALE;
 	private Team[] teams = new Team[2];
 	boolean valid = false;
 
@@ -39,35 +41,30 @@ public class Game extends BasicGame implements constants, ContactListener{
 	Body ball;
 	Body left;
 	Body right;
-	int ballRadius = 5;
-	int goalHeight = 100;
 	int leftPoints = 0;
 	int rightPoints = 0;
 
 	static Image robot;
+	private AppGameContainer app;
 
 	public Game(Team[] teams){
 		super("Soccer");
 
+		
+		
 		// paddles
-		float width = 50;
-		//float height = 30;
-		//Vec2 vertices[] = new Vec2[3];
-		//vertices[0] = new Vec2(0, -width/2/100);
-		//vertices[1] = new Vec2(0, width/2/100);
-		//vertices[2] = new Vec2(-height/100, 0);
 		PolygonShape polygon = new PolygonShape();
-		polygon.setAsBox(width/100f/2, width/100f/2);
+		polygon.setAsBox(ROBOT_WIDTH/2, ROBOT_WIDTH/2);
 		//polygon.set(vertices, 3);
 		FixtureDef robotShapeDef = new FixtureDef();
 		robotShapeDef.shape = polygon;
 		robotShapeDef.density = 1f;		
 		for (int t = 0; t < 2; t++){
-			Robot[] teamsRobots = new Robot[3];
-			for (int i = 0; i < 3; i++){
+			Robot[] teamsRobots = new Robot[5];
+			for (int i = 0; i < 5; i++){
 				BodyDef robotBodyDef = new BodyDef();
 				robotBodyDef.type = BodyType.DYNAMIC;
-				robotBodyDef.position.set((float)Math.random()*6f, (float)Math.random()*6f);
+				robotBodyDef.position.set((float)Math.random()*FIELD_WIDTH, (float)Math.random()*FIELD_HEIGHT);
 				Body paddle = w.createBody(robotBodyDef);
 				paddle.createFixture(robotShapeDef);
 				paddle.m_angularDamping = ROBOT_SPIN_DAMPING;
@@ -81,22 +78,24 @@ public class Game extends BasicGame implements constants, ContactListener{
 
 
 		CircleShape circle = new CircleShape();
-		circle.m_radius = ballRadius/100f;
+		circle.m_radius = BALL_DIAMETER/2;
 		FixtureDef circleShapeDef = new FixtureDef();
 		circleShapeDef.shape = circle;
 		circleShapeDef.density = 1.0f;
 		BodyDef circleBodyDef = new BodyDef();
 		circleBodyDef.type = BodyType.DYNAMIC;
-		circleBodyDef.position.set(3f, 3f);
+		circleBodyDef.position.set(FIELD_WIDTH/2, FIELD_HEIGHT/2);
 		ball = w.createBody(circleBodyDef);
 		ball.createFixture(circleShapeDef);
 
+		/////// WALLS
+		
 		//top
 		BodyDef groundDef = new BodyDef();
-		groundDef.position.set(3f, 0f);
+		groundDef.position.set(FIELD_WIDTH/2, 0f);
 		groundDef.type = BodyType.STATIC;
 		PolygonShape groundShape = new PolygonShape();
-		groundShape.setAsBox(6f, 0);
+		groundShape.setAsBox(FIELD_WIDTH, 0);
 		Body top = w.createBody(groundDef);
 		FixtureDef groundFixture = new FixtureDef();
 		groundFixture.density = 0.2f;
@@ -105,16 +104,16 @@ public class Game extends BasicGame implements constants, ContactListener{
 		top.createFixture(groundFixture);
 		bodies.add(top);
 		//bottom
-		groundDef.position.set(3, 6);
+		groundDef.position.set(FIELD_WIDTH/2, FIELD_HEIGHT);
 		Body bottom = w.createBody(groundDef);
 		bottom.createFixture(groundFixture);
 		bodies.add(bottom);
 		//left
 		BodyDef wallDef = new BodyDef();
-		wallDef.position.set(0, 3);
+		wallDef.position.set(0, FIELD_HEIGHT/2);
 		wallDef.type = BodyType.STATIC;
 		PolygonShape wallShape = new PolygonShape();
-		wallShape.setAsBox(0, 6f);
+		wallShape.setAsBox(0, FIELD_HEIGHT);
 		left = w.createBody(wallDef);
 		FixtureDef wallFixture = new FixtureDef();
 		wallFixture.density = 0.2f;
@@ -123,7 +122,7 @@ public class Game extends BasicGame implements constants, ContactListener{
 		left.createFixture(wallFixture);
 		bodies.add(left);
 		//right
-		wallDef.position.set(6, 3);
+		wallDef.position.set(FIELD_WIDTH, FIELD_HEIGHT/2);
 		right = w.createBody(wallDef);
 		right.createFixture(wallFixture);
 		bodies.add(right);
@@ -137,9 +136,11 @@ public class Game extends BasicGame implements constants, ContactListener{
 		teams[1].setBall(ball);
 		
 		try {
-			AppGameContainer app = new AppGameContainer(this);
+			app = new AppGameContainer(this);
 			app.setTargetFrameRate(30);
-			app.setDisplayMode(screenW, screenH, false);
+			app.setUpdateOnlyWhenVisible(false);
+			app.setAlwaysRender(true);
+			app.setDisplayMode((int)screenW, (int)screenH, false);
 			app.start();
 		} catch (SlickException e) {
 			// TODO Auto-generated catch block
@@ -148,31 +149,35 @@ public class Game extends BasicGame implements constants, ContactListener{
 	}
 
 	public void render(GameContainer gc, Graphics g) throws SlickException {
-		g.setBackground(Color.black);
-		int i = 0;
-		for (Team t:teams){
-			t.render(g);
-			if (i++==0) //set colors
-				g.setColor(Color.green); 
-			else 
-				g.setColor(Color.red);
-			for (Robot r:t.robot)
-				r.render(g);
+		if (rendering){
+			g.setBackground(Color.black);
+			int i = 0;
+			for (Team t:teams){
+				t.render(g);
+				if (i++==0) //set colors
+					g.setColor(Color.green); 
+				else 
+					g.setColor(Color.red);
+				for (Robot r:t.robot)
+					r.render(g);
+			}
+			Vec2 ballPos = ball.getPosition().mul(SCALE);
+			//ball.applyForceToCenter(new Vec2(0,0.1f));
+			g.drawOval(ballPos.x-(BALL_DIAMETER*SCALE)/2, ballPos.y-(BALL_DIAMETER*SCALE)/2, BALL_DIAMETER*SCALE, BALL_DIAMETER*SCALE);
+	
+			g.setColor(Color.white);
+			g.fillRect(0  , screenH/2-(GOAL_WIDTH*SCALE)/2, 3  , (GOAL_WIDTH*SCALE));
+			g.fillRect(screenW-3, screenH/2-(GOAL_WIDTH*SCALE)/2, 3, (GOAL_WIDTH*SCALE));
+	
+			g.drawString("Center pull: "+(centerPull?"en":"dis")+"abled", 10, 30);
 		}
-		Vec2 ballPos = ball.getPosition().mul(100);
-		//ball.applyForceToCenter(new Vec2(0,0.1f));
-		g.drawOval(ballPos.x-ballRadius, ballPos.y-ballRadius, ballRadius*2, ballRadius*2);
-
-		g.setColor(Color.white);
-		g.fillRect(0  , screenW/2-goalHeight/2, 3  , goalHeight);
-		g.fillRect(597, screenW/2-goalHeight/2, 3, goalHeight);
-
 		String scoreString = "score "+leftPoints+" - "+rightPoints;
-		g.drawString(scoreString, 300-g.getFont().getWidth(scoreString)/2, 50);
+		g.drawString(scoreString, screenW/2-g.getFont().getWidth(scoreString)/2, 50);
 	}
 	public void init(GameContainer gc) throws SlickException {
 		try {
 			robot = new Image("data/robot.png");
+			robot = robot.getScaledCopy((ROBOT_WIDTH*SCALE)/50f);
 		} catch (SlickException e1) {
 			e1.printStackTrace();
 		}
@@ -186,11 +191,11 @@ public class Game extends BasicGame implements constants, ContactListener{
 				r.update();
 		}
 
-		w.step(1/30f, 8, 3);
+		w.step(1/30f, 30, 30);
 		
 		if (ballReset){
 			ball.setType(BodyType.STATIC);
-			ball.setTransform(new Vec2(3,3), 0);
+			ball.setTransform(new Vec2(FIELD_WIDTH/2,FIELD_HEIGHT/2), 0);
 			ball.setLinearVelocity(new Vec2(0,0));
 			ball.setAngularVelocity(0);
 			ball.synchronizeTransform();
@@ -198,7 +203,7 @@ public class Game extends BasicGame implements constants, ContactListener{
 			ballReset = false;
 		}
 
-		Vec2 ballPos = ball.getPosition().mul(100);
+		Vec2 ballPos = ball.getPosition().mul(SCALE);
 		//ball manipulation
 		Input input = gc.getInput();
 		boolean mouse = input.isMouseButtonDown(0);
@@ -206,13 +211,59 @@ public class Game extends BasicGame implements constants, ContactListener{
 		int x = input.getMouseX();
 		int y = input.getMouseY();
 		if (mouse2){
-			ball.applyForceToCenter(new Vec2(x-ballPos.x, y-ballPos.y).mul(0.0025f));
+			ball.applyForceToCenter(new Vec2(x-ballPos.x, y-ballPos.y).mul(0.0001f));
 		}
 		
-		//APPLY FORCE TOWARDS CENTER
-		ball.applyForceToCenter(new Vec2(300-ballPos.x, 300-ballPos.y).mul(0.00001f));
-		
+		//APPLY tiny FORCE TOWARDS CENTER
+		if (centerPull)
+			ball.applyForceToCenter(new Vec2(SCREEN_WIDTH/2-ballPos.x, SCREEN_HEIGHT/2-ballPos.y).mul(0.0000001f));
 
+		if (oldBallPos != null){
+			float xDiff = ballPos.x-oldBallPos.x;
+			float yDiff = ballPos.y-oldBallPos.y;
+			if (oldBallPos != null && Math.sqrt(xDiff*xDiff+yDiff*yDiff) < movementTolerance)
+				countTillReset++;
+			else
+				countTillReset = 0;
+			if (countTillReset > maxCountTillReset){
+				resetTimer = 100;
+			}
+		}
+		oldBallPos = ballPos;
+		
+		if (ballPos.y>screenH/2-(GOAL_WIDTH*SCALE)/2 && ballPos.y<screenH/2+(GOAL_WIDTH*SCALE)/2){
+			if (ballPos.x>SCREEN_WIDTH-7.5){
+				leftPoints++;
+				resetTimer = 100;
+			}else if (ballPos.x<7.5){
+				rightPoints++;
+				resetTimer = 100;
+			}
+		}
+		resetTimer--;
+		if (resetTimer>0) ballReset = true;
+		
+	}
+	int countTillReset = 0;
+	int maxCountTillReset = 1000;
+	int movementTolerance = 2;
+	Vec2 oldBallPos;
+
+	boolean centerPull = true;
+	boolean rendering = true;
+	
+	int resetTimer = 0;
+	
+	private int framerate = 30;
+	public void keyPressed(int key,char c){
+		if (c == 'z') {
+			framerate = 30-framerate;
+			app.setTargetFrameRate(framerate);
+		}
+		if (c == 'x')
+			centerPull = !centerPull;
+		if (c == 'r')
+			rendering = !rendering;
 	}
 
 	boolean ballReset = false;
@@ -220,16 +271,18 @@ public class Game extends BasicGame implements constants, ContactListener{
 	public void beginContact(Contact c) {
 		if (c.getFixtureB().getBody()==ball){
 			if (c.getFixtureA().getBody()==left){
-				Vec2 ballPos = ball.getPosition().mul(100);
-				if (ballPos.y>screenW/2-goalHeight/2 && ballPos.y<screenW/2+goalHeight/2){
+				Vec2 ballPos = ball.getPosition().mul(SCALE);
+				if (ballPos.y>screenH/2-(GOAL_WIDTH*SCALE)/2 && ballPos.y<screenH/2+(GOAL_WIDTH*SCALE)/2){
 					rightPoints++;
 					ballReset = true;
+					resetTimer = 100;
 				}
 			}else if (c.getFixtureA().getBody()==right){
-				Vec2 ballPos = ball.getPosition().mul(100);
-				if (ballPos.y>screenW/2-goalHeight/2 && ballPos.y<screenW/2+goalHeight/2){
+				Vec2 ballPos = ball.getPosition().mul(SCALE);
+				if (ballPos.y>screenH/2-(GOAL_WIDTH*SCALE)/2 && ballPos.y<screenH/2+(GOAL_WIDTH*SCALE)/2){
 					leftPoints++;
 					ballReset = true;
+					resetTimer = 100;
 				}
 			}
 		}

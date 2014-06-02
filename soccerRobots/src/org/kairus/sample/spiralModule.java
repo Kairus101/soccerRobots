@@ -13,20 +13,20 @@ public class spiralModule extends RobotModule {
 
 	@Override
 	int assessUtility(Team team) {
-		return 50;
+		frame+=0.02*((KairusTeam)team).framesBetweenCalculation;
+		return 1;
 	}
 
 	double tolerance = 10;
 	float frame = 0f;
 	@Override
 	boolean execute(Team team) {
-		System.out.println(robotNumber+": Spiral!");
-		frame+=0.02;
 		Robot me = team.getRobots()[robotNumber];
 		Vec2 pos = me.getPosition();
 		Vec2 vel = me.getVelocity();
-		double idealX = 300+Math.cos(frame+(robotNumber/3f)*2f*Math.PI + (team.getTeamNumber()==0f?0:Math.PI/3f))*200;
-		double idealY = 300+Math.sin(frame+(robotNumber/3f)*2f*Math.PI + (team.getTeamNumber()==0?0f:Math.PI/3f))*200;
+		double idealX = SCREEN_WIDTH/2 +Math.cos(frame+(robotNumber/5f)*2f*Math.PI + (team.getTeamNumber()==0f?0:Math.PI/5f))*200;
+		double idealY = SCREEN_HEIGHT/2+Math.sin(frame+(robotNumber/5f)*2f*Math.PI + (team.getTeamNumber()==0?0f:Math.PI/5f))*200;
+		idealPosition = new Vec2((float)idealX, (float) idealY);
 		double vecX = (idealX-pos.x) - vel.x;
 		double vecY = (idealY-pos.y) - vel.y;
 		float angleOffset = (float) MathFunctions.headingDifference(me, pos.x+vecX, pos.y+vecY);
@@ -40,8 +40,8 @@ public class spiralModule extends RobotModule {
 		Robot me = team.getRobots()[robotNumber];
 		Vec2 pos = me.getPosition();
 		Vec2 vel = me.getVelocity();
-		double idealX = 300+Math.cos(frame+(robotNumber/3f)*2f*Math.PI + (team.getTeamNumber()==0f?0:Math.PI/3f))*200;
-		double idealY = 300+Math.sin(frame+(robotNumber/3f)*2f*Math.PI + (team.getTeamNumber()==0?0f:Math.PI/3f))*200;
+		double idealX = SCREEN_WIDTH/2 +Math.cos(frame+(robotNumber/3f)*2f*Math.PI + (team.getTeamNumber()==0f?0:Math.PI/3f))*200;
+		double idealY = SCREEN_HEIGHT/2+Math.sin(frame+(robotNumber/3f)*2f*Math.PI + (team.getTeamNumber()==0?0f:Math.PI/3f))*200;
 		
 		g.setColor(Color.blue);
 		//g.drawLine((float)pos.x, (float)pos.y, (float)idealX, (float)idealY);

@@ -21,7 +21,11 @@ public class MathFunctions {
 	public static double headingDifference(Robot robot, double positionX, double positionY){
 		Vec2 pos = robot.getPosition();
 		double angle = Math.atan2(positionY-pos.y, positionX-pos.x);
-		return angleDifference(angle, robot.getDirection())%(2*Math.PI);
+		return angleDifference(angle, robot.getDirection());
+	}
+	
+	public static double sign(double number){
+		return number<0?-1:number==0?0:1;
 	}
 	
 }

@@ -12,8 +12,8 @@ public abstract class Team implements constants {
 	int teamNumber;
 	private Body ball;
 
-	public Vec2 getBallPosition(){return ball.getPosition();}
-	public Vec2 getBallVelocity(){return ball.getLinearVelocity();}
+	public Vec2 getBallPosition(){return ball.getPosition().mul(SCALE);}
+	public Vec2 getBallVelocity(){return ball.getLinearVelocity().mul(SCALE);}
 	public float getBallSpin(){return ball.getAngularVelocity();}
 
 	public Robot[] getRobots(){

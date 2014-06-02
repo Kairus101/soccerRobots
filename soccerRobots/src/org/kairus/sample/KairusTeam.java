@@ -5,7 +5,6 @@ import java.util.Collections;
 
 import org.jbox2d.common.Vec2;
 import org.kairus.api.Team;
-import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
 
 public class KairusTeam extends Team {
@@ -20,76 +19,95 @@ public class KairusTeam extends Team {
 	ArrayList<RobotModule> goalieModules = new ArrayList<RobotModule>();
 	ArrayList<RobotModule> defenderModules = new ArrayList<RobotModule>();
 	ArrayList<RobotModule> attackerModules = new ArrayList<RobotModule>();
-	int framesBetweenCalculation = 0;
+	ArrayList<RobotModule> attacker2Modules = new ArrayList<RobotModule>();
+	ArrayList<RobotModule> defender2Modules = new ArrayList<RobotModule>();
+	
+	ArrayList<ArrayList<RobotModule>> Modules = new ArrayList<ArrayList<RobotModule>>();
+	
+	int framesBetweenCalculation = 1;
 	int currentFrame = 0;
 	
 	private void initModules(){
-		//defense
-		goalieModules.add(new goalieModule(0, this));
-		//spiral
-		//goalieModules.add(new spiralModule(0, this));
-		defenderModules.add(new spiralModule(1, this));
-		defenderModules.add(new getBehindBallModule(1, this));
-		attackerModules.add(new spiralModule(2, this));
+		Modules.add(goalieModules);
+		Modules.add(defenderModules);
+		Modules.add(attackerModules);
+		Modules.add(attacker2Modules);
+		Modules.add(defender2Modules);
+		
+		// Core behaviors
+		
+		int i = 0;
+		for (ArrayList<RobotModule> m:Modules){
+			if (i != 0)
+				m.add(new fireAtGoalModule(i, this)); // fire at goals when possible
+			m.add(new ballUnstuckModule(i, this)); // Get ball out of stuck places
+			m.add(new robotUnstuckModule(i, this)); // Get robot out of stuck places
+			m.add(new spiralModule(i, this)); // Default behavior
+			i++;
+		}
 
-		//fire
-		goalieModules.add(new fireAtGoalModule(0, this));
-		defenderModules.add(new fireAtGoalModule(1, this));
-		attackerModules.add(new fireAtGoalModule(2, this));
+		//goalie
+		goalieModules.add(new goalieModule(0, this));
+		
+		//Attacker positioning
+		attackerModules.add(new getBehindBallModule(2, this));
+		attacker2Modules.add(new getBehindBallModule(3, this));
+		
+		//defense
+		defenderModules.add(new defenseModule(1, this));
+		defender2Modules.add(new defenseModule(4, this));
+		attacker2Modules.add(new defenseModule(3, this));
+		
 	}
 	
 	public void gameFrame() {
 		
 		if (++currentFrame>=framesBetweenCalculation){
 			currentFrame=0;
-			
+
 			//update all utility values.
-			for (RobotModule r:goalieModules)
-				r.setUtility(this);
-			for (RobotModule r:defenderModules)
-				r.setUtility(this);
-			for (RobotModule r:attackerModules)
-				r.setUtility(this);
+			for (ArrayList<RobotModule> m:Modules)
+				for (RobotModule r:m)
+					r.setUtility(this);
 
 			//sort the modules by utility
-			Collections.sort(goalieModules);
-			Collections.sort(defenderModules);
-			Collections.sort(attackerModules);
+			for (ArrayList<RobotModule> m:Modules)
+				Collections.sort(m);
 		}
 		
+		//Swap robots if they'd rather be where the other is
+		for (ArrayList<RobotModule> m:Modules)
+			m.get(0).calculateDistanceFromIdeal();
+		
+		//if (getTeamNumber() == 1){
+		for (ArrayList<RobotModule> m:Modules)
+			for (ArrayList<RobotModule> n:Modules)
+				if (m!=n && m.get(0).idealPosition != null && n.get(0).idealPosition != null)
+					if (MathFunctions.distance(m.get(0).idealPosition, n.get(0).position) < m.get(0).distanceFromIdeal
+					  &&MathFunctions.distance(n.get(0).idealPosition, m.get(0).position) < n.get(0).distanceFromIdeal){
+						// Swap modules of robots
+						int r1 = n.get(0).robotNumber;
+						int r2 = m.get(0).robotNumber;
+						for (RobotModule r:n)
+							r.robotNumber = r2;
+						for (RobotModule r:m)
+							r.robotNumber = r1;
+						m.get(0).calculateDistanceFromIdeal();
+						n.get(0).calculateDistanceFromIdeal();
+					}
+		//}
 		//run the modules in order until one works.
-		for (RobotModule r:goalieModules)
-			if (r.execute(this))break;
-		for (RobotModule r:defenderModules)
-			if (r.execute(this))break;
-		for (RobotModule r:attackerModules)
-			if (r.execute(this))break;
+		for (ArrayList<RobotModule> m:Modules)
+			for (RobotModule r:m)
+				if (r.execute(this))break;
+
 		
-		
-		
-		
-	}
-	
-	double angleDifference(double targetAngle, double currentAngle){
-		double angle = (targetAngle-currentAngle) %(2*Math.PI);
-		return angle += (angle>Math.PI) ? -2*Math.PI : (angle<-Math.PI) ? 2*Math.PI : 0;
-	}
-	
-	double headingDifference(int robotNum, double positionX, double positionY){
-		Vec2 pos = robot[robotNum].getPosition();
-		double angle = Math.atan2(positionY-pos.y, positionX-pos.x);
-		if (angle<0)angle+=2*Math.PI;
-		return angleDifference(angle, robot[robotNum].getDirection());
 	}
 
 	@Override
 	public void render(Graphics g) {
-		
-		for (RobotModule r:goalieModules)
-			r.render(g);
-		for (RobotModule r:defenderModules)
-			r.render(g);
-		for (RobotModule r:attackerModules)
-			r.render(g);
+		for (ArrayList<RobotModule> m:Modules)
+			for (RobotModule r:m)
+				r.render(g);
 	}
 }
